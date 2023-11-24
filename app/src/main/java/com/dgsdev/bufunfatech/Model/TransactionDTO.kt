@@ -1,17 +1,10 @@
 package com.dgsdev.bufunfatech.Model
 
+
 import android.os.Parcelable
-import androidx.room.Entity
-import androidx.room.PrimaryKey
 import kotlinx.parcelize.Parcelize
-
-@Entity(tableName = "Transaction")
 @Parcelize
-data class Transaction (
-
-    @PrimaryKey(autoGenerate = true)
-    var id:Int? = null,
-
+data class TransactionDTO (
     var type: String,
     var category: String,
     var title: String,
@@ -21,6 +14,12 @@ data class Transaction (
     var month:Int,
     var year:Int,
     var note: String
+): Parcelable
 
-    ) : Parcelable
+
+
+
+
+
+
 

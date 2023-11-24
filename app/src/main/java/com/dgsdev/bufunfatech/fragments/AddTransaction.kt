@@ -25,8 +25,12 @@ import java.util.*
 
 
 class AddTransaction : Fragment(), View.OnClickListener {
+
    val transactions by navArgs<AddTransactionArgs>()
    private lateinit var binding: FragmentAddTransactionBinding
+
+   private var formattedDateForApi: String? = null
+
    lateinit var userDetails: SharedPreferences
    private var category = ""
     var day=0
@@ -101,92 +105,109 @@ class AddTransaction : Fragment(), View.OnClickListener {
             }
         }
     }
+
     private fun addNewTransaction() {
        val title = binding.editTitle.text.toString()
        val amount = binding.editMoney.text.toString()
        val note = binding.editNote.text.toString()
-       val date = binding.editDate.text.toString()
+       val date = formattedDateForApi
 
        if (title == "" || amount == "" || note == "" || date == "" || category == ""){
            Toast.makeText(context, "Insira os detalhes necessários", Toast.LENGTH_SHORT).show()
-       }else {
+       } else {
 
            if ( transactions.from){
-               val transaction = Transaction(
-                   transactions.data.id,
-                   type = "Expense",
-                   title = title,
-                   amount = amount.toDouble(),
-                   note = note,
-                   date = date,
-                   day = day,
-                   month = month,
-                   year = year,
-                   category = category
-
-               )
-               viewModel.updateTransaction(transaction)
+               val transaction = date?.let {
+                   Transaction(
+                       transactions.data.id,
+                       type = "Expense",
+                       title = title,
+                       amount = amount.toDouble(),
+                       note = note,
+                       date = it,
+                       day = day,
+                       month = month,
+                       year = year,
+                       category = category
+                   )
+               }
+               if (transaction != null) {
+                   viewModel.updateTransaction(transaction)
+               }
                Toast.makeText(context, "Transação atualizada com sucesso!", Toast.LENGTH_SHORT).show()
-               val arg = AddTransactionDirections.actionAddTransactionToTransactionDetails(transaction,"AddTransaction")
-               Navigation.findNavController(binding.root)
-                   .navigate(arg)
+               val arg = transaction?.let {
+                   AddTransactionDirections.actionAddTransactionToTransactionDetails(
+                       it,"AddTransaction")
+               }
+               if (arg != null) {
+                   Navigation.findNavController(binding.root)
+                       .navigate(arg)
+               }
            }else {
-               val transaction = Transaction(
-                   null,
-                   type = "Expense",
-                   title = title,
-                   amount = amount.toDouble(),
-                   note = note,
-                   date = date,
-                   day = day,
-                   month = month,
-                   year = year,
-                   category = category
+               val transaction = date?.let {
+                   Transaction(
+                       null,
+                       type = "Expense",
+                       title = title,
+                       amount = amount.toDouble(),
+                       note = note,
+                       date = it,
+                       day = day,
+                       month = month,
+                       year = year,
+                       category = category
 
-               )
-               viewModel.addTransaction(transaction)
+                   )
+               }
+               if (transaction != null) {
+                   viewModel.addTransaction(transaction)
+               }
                Toast.makeText(context, "Transação adicionada com sucesso!", Toast.LENGTH_SHORT).show()
                Navigation.findNavController(binding.root)
                    .navigate(R.id.action_addTransaction_to_dashboard2)
            }
        }
-
-
     }
 
+    @SuppressLint("SimpleDateFormat")
+    fun formatToIso8601(cal: Calendar): String {
+        val outputFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.getDefault())
+        outputFormat.timeZone = TimeZone.getTimeZone("UTC")
+        return outputFormat.format(cal.time)
+    }
 
     @SuppressLint("SimpleDateFormat")
     fun datePicker(binding:FragmentAddTransactionBinding){
+
         val cal = Calendar.getInstance()
+
         binding.editDate.setText(SimpleDateFormat("dd MMMM  yyyy").format(System.currentTimeMillis()))
         day = SimpleDateFormat("dd").format(System.currentTimeMillis()).toInt()
         month = SimpleDateFormat("MM").format(System.currentTimeMillis()).toInt()
         year = SimpleDateFormat("yyyy").format(System.currentTimeMillis()).toInt()
-        val dateSetListener = OnDateSetListener { _, Year, monthOfYear, dayOfMonth ->
-            cal.set(Calendar.YEAR, Year)
+
+        val dateSetListener = DatePickerDialog.OnDateSetListener { _, year, monthOfYear, dayOfMonth ->
+            cal.set(Calendar.YEAR, year)
             cal.set(Calendar.MONTH, monthOfYear)
             cal.set(Calendar.DAY_OF_MONTH, dayOfMonth)
 
-            var myFormat = "dd MMMM  yyyy" // mention the format you need
-            var sdf = SimpleDateFormat(myFormat, Locale.US)
-            binding.editDate.setText(sdf.format(cal.time))
-            myFormat="dd"
-            sdf = SimpleDateFormat(myFormat, Locale.US)
-            day =sdf.format(cal.time).toInt()
-            myFormat="MM"
-            sdf = SimpleDateFormat(myFormat, Locale.US)
-            month = sdf.format(cal.time).toInt()
-            myFormat="yyyy"
-            sdf = SimpleDateFormat(myFormat, Locale.US)
-            year = sdf.format(cal.time).toInt()
+            val displayFormat = SimpleDateFormat("dd MMMM yyyy", Locale.US)
+            binding.editDate.setText(displayFormat.format(cal.time))
 
+            // Data para ISO 8601 para uso na API
+            formattedDateForApi = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.getDefault()).apply {
+                timeZone = TimeZone.getTimeZone("UTC")
+            }.format(cal.time)
         }
+            //formatToIso8601(cal)
 
         binding.editDate.setOnClickListener {
-            DatePickerDialog(requireContext(), dateSetListener,
+            DatePickerDialog(
+                requireContext(), dateSetListener,
                 cal.get(Calendar.YEAR),
                 cal.get(Calendar.MONTH),
-                cal.get(Calendar.DAY_OF_MONTH)).show()
+                cal.get(Calendar.DAY_OF_MONTH)
+            ).show()
         }
     }
 

@@ -93,63 +93,75 @@ class Dashboard : Fragment() {
         totalSaude = 0.0f
         totalOutros = 0.0f
         totalEducacao = 0.0f
-        viewModel.getMonthlyTransaction(currentMonth.toInt(),currentYear.toInt()).observe(viewLifecycleOwner,{ transactionList ->
-            if(transactionList.isEmpty()){
-                binding.noTransactionsDoneText.text = "Adicione sua primeira transação de ${format.format(Calendar.getInstance().getTime())} $currentYear \n Clique no + para adicionar novas transações"
+        viewModel.getMonthlyTransaction(currentMonth.toInt(),currentYear.toInt()).observe(viewLifecycleOwner) { transactionList ->
+            if (transactionList.isEmpty()) {
+                binding.noTransactionsDoneText.text = "Adicione sua primeira transação de ${
+                    format.format(
+                        Calendar.getInstance().getTime()
+                    )
+                } $currentYear \n Clique no + para adicionar novas transações"
                 binding.noTransactionsDoneText.visibility = View.VISIBLE
                 binding.transactionRecyclerView.visibility = View.GONE
                 binding.text1.visibility = View.GONE
-            }
-            else {
+            } else {
                 binding.text1.visibility = View.VISIBLE
                 binding.noTransactionsDoneText.visibility = View.GONE
                 binding.transactionRecyclerView.visibility = View.VISIBLE
             }
-                binding.transactionRecyclerView.layoutManager =
-                    LinearLayoutManager(requireContext())
-                binding.transactionRecyclerView.adapter =
-                    TransactionAdapter(requireContext(),requireActivity(), "Dashboard", transactionList.reversed())
+            binding.transactionRecyclerView.layoutManager =
+                LinearLayoutManager(requireContext())
+            binding.transactionRecyclerView.adapter =
+                TransactionAdapter(
+                    requireContext(),
+                    requireActivity(),
+                    "Dashboard",
+                    transactionList.reversed()
+                )
 
-                for (i in transactionList) {
-                    totalExpense += i.amount
-                    when (i.category) {
-                        "Comida" -> {
-                            totalComida += (i.amount.toFloat())
-                        }
-                        "Shopping" -> {
-                            totalShopping += (i.amount.toFloat())
-                        }
-                        "Transporte" -> {
-                            totalTransporte += (i.amount.toFloat())
-                        }
+            for (i in transactionList) {
+                totalExpense += i.amount
+                when (i.category) {
+                    "Comida" -> {
+                        totalComida += (i.amount.toFloat())
+                    }
 
-                        "Saude" -> {
-                            totalSaude += (i.amount.toFloat())
-                        }
-                        "Outros" -> {
-                            totalOutros += (i.amount.toFloat())
-                        }
-                        "Educacao" -> {
-                            totalEducacao += (i.amount.toFloat())
-                        }
+                    "Shopping" -> {
+                        totalShopping += (i.amount.toFloat())
+                    }
+
+                    "Transporte" -> {
+                        totalTransporte += (i.amount.toFloat())
+                    }
+
+                    "Saude" -> {
+                        totalSaude += (i.amount.toFloat())
+                    }
+
+                    "Outros" -> {
+                        totalOutros += (i.amount.toFloat())
+                    }
+
+                    "Educacao" -> {
+                        totalEducacao += (i.amount.toFloat())
                     }
                 }
-                binding.expense.text = "R$ ${totalExpense.toInt()}"
-                binding.budget.text = "R$ ${totalGoal.toInt()}"
-                if (totalExpense > totalGoal) {
-                    binding.indicator.setImageResource(R.drawable.ic_negative_transaction)
-                    binding.expense.setTextColor(
-                        ContextCompat.getColor(
-                            requireContext(),
-                            R.color.red
-                        )
+            }
+            binding.expense.text = "R$ ${totalExpense.toInt()}"
+            binding.budget.text = "R$ ${totalGoal.toInt()}"
+            if (totalExpense > totalGoal) {
+                binding.indicator.setImageResource(R.drawable.ic_negative_transaction)
+                binding.expense.setTextColor(
+                    ContextCompat.getColor(
+                        requireContext(),
+                        R.color.red
                     )
-                } else {
-                    binding.indicator.setImageResource(R.drawable.ic_positive_amount)
-                }
-                showPiChart()
+                )
+            } else {
+                binding.indicator.setImageResource(R.drawable.ic_positive_amount)
+            }
+            showPiChart()
 
-        })
+        }
 
     }
 
@@ -196,7 +208,6 @@ class Dashboard : Fragment() {
                 }
             }
             )
-
     }
 
     fun showOnBoarding(){
@@ -214,11 +225,7 @@ class Dashboard : Fragment() {
                 }
             }
             .show()
-
     }
-
-
-
 }
 
 

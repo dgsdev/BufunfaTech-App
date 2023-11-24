@@ -90,22 +90,24 @@ class AllTransactions : Fragment() ,View.OnClickListener {
         binding.monthlyCard.visibility = View.GONE
         binding.yearSpinner.visibility = View.GONE
         binding.text1.visibility = View.GONE
-       binding.title.text = "Todas Transações"
-        viewModel.getTransaction().observe(viewLifecycleOwner,{ transactionList ->
+        binding.title.text = "Todas Transações"
+        viewModel.getTransaction().observe(viewLifecycleOwner) { transactionList ->
             if (transactionList.isEmpty()) {
                 binding.noTransactionsDoneText.text = "Nenhuma transação feita ainda"
                 binding.noTransactionsDoneText.visibility = View.VISIBLE
                 binding.transactionRecyclerView.visibility = View.GONE
-            }else {
+            } else {
                 binding.noTransactionsDoneText.visibility = View.GONE
                 binding.transactionRecyclerView.visibility = View.VISIBLE
                 binding.transactionRecyclerView.layoutManager =
                     LinearLayoutManager(requireContext())
                 binding.transactionRecyclerView.adapter =
-                    TransactionAdapter(requireContext(),
-                        requireActivity(), "AllTransactions", transactionList)
+                    TransactionAdapter(
+                        requireContext(),
+                        requireActivity(), "AllTransactions", transactionList
+                    )
             }
-        })
+        }
     }
 
     @SuppressLint("SimpleDateFormat", "SetTextI18n")
@@ -137,7 +139,6 @@ class AllTransactions : Fragment() ,View.OnClickListener {
                 showMonthsTransaction()
             }
         }
-
     }
 
     @SuppressLint("SetTextI18n")
@@ -152,70 +153,74 @@ class AllTransactions : Fragment() ,View.OnClickListener {
         totalSaude = 0.0f
         totalOutros = 0.0f
         totalEducacao = 0.0f
-        viewModel.getMonthlyTransaction(monthInt,year).observe(viewLifecycleOwner,
-            { transactionList ->
-                if (transactionList.isEmpty()) {
-                    binding.noTransactionsDoneText.text = "Nenhuma transação feita em $month $year "
-                    binding.noTransactionsDoneText.visibility = View.VISIBLE
-                    binding.monthlyCard.visibility = View.GONE
-                    binding.transactionRecyclerView.visibility = View.GONE
-                    binding.text1.visibility = View.GONE
-                } else {
-                    binding.monthlyCard.visibility = View.VISIBLE
-                    binding.noTransactionsDoneText.visibility = View.GONE
-                    binding.transactionRecyclerView.visibility = View.VISIBLE
-                    binding.text1.visibility = View.VISIBLE
-                    binding.transactionRecyclerView.layoutManager =
-                        LinearLayoutManager(requireContext())
-                    binding.transactionRecyclerView.adapter = TransactionAdapter(
-                        requireContext(),
-                        requireActivity(),
-                        "AllTransactions",
-                        transactionList.reversed()
-                    )
+        viewModel.getMonthlyTransaction(monthInt,year).observe(viewLifecycleOwner
+        ) { transactionList ->
+            if (transactionList.isEmpty()) {
+                binding.noTransactionsDoneText.text = "Nenhuma transação feita em $month $year "
+                binding.noTransactionsDoneText.visibility = View.VISIBLE
+                binding.monthlyCard.visibility = View.GONE
+                binding.transactionRecyclerView.visibility = View.GONE
+                binding.text1.visibility = View.GONE
+            } else {
+                binding.monthlyCard.visibility = View.VISIBLE
+                binding.noTransactionsDoneText.visibility = View.GONE
+                binding.transactionRecyclerView.visibility = View.VISIBLE
+                binding.text1.visibility = View.VISIBLE
+                binding.transactionRecyclerView.layoutManager =
+                    LinearLayoutManager(requireContext())
+                binding.transactionRecyclerView.adapter = TransactionAdapter(
+                    requireContext(),
+                    requireActivity(),
+                    "AllTransactions",
+                    transactionList.reversed()
+                )
 
-                    for (i in transactionList) {
-                        totalExpense += i.amount
-                        when (i.category) {
-                            "Food" -> {
-                                totalComida += (i.amount.toFloat())
-                            }
-                            "Shopping" -> {
-                                totalShopping += (i.amount.toFloat())
-                            }
-                            "Transport" -> {
-                                totalTransporte += (i.amount.toFloat())
-                            }
+                for (i in transactionList) {
+                    totalExpense += i.amount
+                    when (i.category) {
+                        "Food" -> {
+                            totalComida += (i.amount.toFloat())
+                        }
 
-                            "Health" -> {
-                                totalSaude += (i.amount.toFloat())
-                            }
-                            "Other" -> {
-                                totalOutros += (i.amount.toFloat())
-                            }
-                            "Education" -> {
-                                totalEducacao += (i.amount.toFloat())
-                            }
+                        "Shopping" -> {
+                            totalShopping += (i.amount.toFloat())
+                        }
+
+                        "Transport" -> {
+                            totalTransporte += (i.amount.toFloat())
+                        }
+
+                        "Health" -> {
+                            totalSaude += (i.amount.toFloat())
+                        }
+
+                        "Other" -> {
+                            totalOutros += (i.amount.toFloat())
+                        }
+
+                        "Education" -> {
+                            totalEducacao += (i.amount.toFloat())
                         }
                     }
-                    binding.expense.text = "R$ ${totalExpense.toInt()}"
-                    binding.budget.text = "R$ ${totalGoal.toInt()}"
-                    binding.date.text = "${month} ${year}"
-                    if (totalExpense > totalGoal) {
-                        binding.indicator.setImageResource(R.drawable.ic_negative_transaction)
-                        binding.expense.setTextColor(
-                            ContextCompat.getColor(
-                                requireContext(),
-                                R.color.red
-                            )
-                        )
-                    } else {
-                        binding.indicator.setImageResource(R.drawable.ic_positive_amount)
-                    }
-                    showPiChart()
                 }
+                binding.expense.text = "R$ ${totalExpense.toInt()}"
+                binding.budget.text = "R$ ${totalGoal.toInt()}"
+                binding.date.text = "${month} ${year}"
+                if (totalExpense > totalGoal) {
+                    binding.indicator.setImageResource(R.drawable.ic_negative_transaction)
+                    binding.expense.setTextColor(
+                        ContextCompat.getColor(
+                            requireContext(),
+                            R.color.red
+                        )
+                    )
+                } else {
+                    binding.indicator.setImageResource(R.drawable.ic_positive_amount)
+                }
+                showPiChart()
+            }
 
-        })
+        }
     }
     private fun showPiChart() {
         mPieChart.addPieSlice(PieModel("Comida", totalComida, ContextCompat.getColor(requireContext(), R.color.yellow)))
@@ -275,14 +280,14 @@ class AllTransactions : Fragment() ,View.OnClickListener {
         totalSaude = 0.0f
         totalOutros = 0.0f
         totalEducacao = 0.0f
-        viewModel.getYearlyTransaction(year).observe(viewLifecycleOwner,{ transactionList ->
-            if(transactionList.isEmpty()){
+        viewModel.getYearlyTransaction(year).observe(viewLifecycleOwner) { transactionList ->
+            if (transactionList.isEmpty()) {
                 binding.noTransactionsDoneText.text = "Nenhuma transação feita no ano $year "
                 binding.noTransactionsDoneText.visibility = View.VISIBLE
                 binding.monthlyCard.visibility = View.GONE
                 binding.transactionRecyclerView.visibility = View.GONE
                 binding.text1.visibility = View.GONE
-            }else {
+            } else {
                 binding.monthlyCard.visibility = View.VISIBLE
                 binding.noTransactionsDoneText.visibility = View.GONE
                 binding.transactionRecyclerView.visibility = View.VISIBLE
@@ -302,9 +307,11 @@ class AllTransactions : Fragment() ,View.OnClickListener {
                         "Food" -> {
                             totalComida += (i.amount.toFloat())
                         }
+
                         "Shopping" -> {
                             totalShopping += (i.amount.toFloat())
                         }
+
                         "Transport" -> {
                             totalTransporte += (i.amount.toFloat())
                         }
@@ -312,9 +319,11 @@ class AllTransactions : Fragment() ,View.OnClickListener {
                         "Health" -> {
                             totalSaude += (i.amount.toFloat())
                         }
+
                         "Other" -> {
                             totalOutros += (i.amount.toFloat())
                         }
+
                         "Education" -> {
                             totalEducacao += (i.amount.toFloat())
                         }
@@ -336,7 +345,7 @@ class AllTransactions : Fragment() ,View.OnClickListener {
                 }
                 showPiChart()
             }
-        })
+        }
     }
 
 
@@ -593,6 +602,4 @@ class AllTransactions : Fragment() ,View.OnClickListener {
         button.setStrokeColorResource(R.color.textSecondary)
         button.setTextColor(ContextCompat.getColor(requireContext(), R.color.textSecondary))
     }
-
-
 }
