@@ -1,34 +1,43 @@
 package com.dgsdev.bufunfatech.Repository
 
-import androidx.lifecycle.LiveData
-import com.dgsdev.bufunfatech.Dao.TransactionDao
+
+import com.dgsdev.bufunfatech.Data.Api.ServiceApi
 import com.dgsdev.bufunfatech.Model.Transaction
+import com.dgsdev.bufunfatech.Network.ServiceProvider
 
-class TransactionRepository(val dao: TransactionDao) {
+class TransactionRepository(serviceApi: ServiceApi) {
 
-    fun getAllTransaction(): LiveData<List<Transaction>> {
-        return dao.getTransaction()
+    private val serviceApi: ServiceApi = ServiceProvider.createService(ServiceApi::class.java)
+
+    suspend fun getAllTransactions(): List<Transaction> {
+        return serviceApi.getTransactions()
+    }
+    suspend fun getMonthlyTransaction(month:Int, year:Int): List<Transaction> {
+        return serviceApi.getMonthlyTransaction(month, year)
     }
 
-    fun getMonthlyTransaction(month:Int,Year:Int): LiveData<List<Transaction>>{
-        return dao.getMonthlyTransaction(month,Year)
+    suspend fun getYearlyTransaction(year:Int): List<Transaction> {
+        return serviceApi.getYearlyTransaction(year)
     }
 
-    fun getYearlyTransaction(year:Int): LiveData<List<Transaction>>{
-        return dao.getYearlyTransaction(year)
+    suspend fun insertTransaction(transaction: Transaction) {
+        try {
+            serviceApi.insertTransaction(transaction)
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
     }
 
-    fun insertTransaction(transaction: Transaction){
-        dao.insertTransaction(transaction)
+    suspend fun deleteTransaction(id:Int){
+        serviceApi.deleteTransaction(id)
     }
 
-    fun deleteTransaction(id:Int){
-        dao.deleteTransaction(id)
+    suspend fun updateTransaction(id: Int, transaction: Transaction){
+        try {
+            serviceApi.updateTransaction(id, transaction)
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+        //serviceApi.updateTransaction(id, transaction)
     }
-
-    fun updateTransaction(transaction: Transaction){
-        dao.updateTransaction(transaction)
-    }
-
-
 }

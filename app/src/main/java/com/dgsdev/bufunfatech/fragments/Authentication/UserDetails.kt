@@ -63,6 +63,4 @@ class UserDetails : Fragment() {
         }
     }
 
-
-
 }
