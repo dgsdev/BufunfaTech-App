@@ -8,8 +8,8 @@ interface ServiceApi {
     @GET ("transactions")
     suspend fun getTransactions(): List<Transaction>
 
-    @GET ("transactions/{id}")
-    suspend fun getTransaction(@Path("id") id: Int): Transaction
+    //@GET ("transactions/{id}")
+    //suspend fun getTransaction(@Path("id") id: Int): Transaction
 
     @POST ("transactions")
     suspend fun insertTransaction(@Body transaction: Transaction): Transaction
